@@ -1,133 +1,221 @@
-local Library = {windowCount = 0, flags = {}}
-local b = {}
-setmetatable(b, {
-    __index = function(c, d) return game:GetService(d) end, 
-    __newindex = function(e, f) e[f] = nil return end
-})
-
+local Library = {windowCount = 0}
+local b = setmetatable({}, {__index = function(self, k) return game:GetService(k) end})
 local player = b.Players.LocalPlayer
 
-local function Drag(i, j)
-    local k, l, m, n
-    local function o(p)
-        local q = p.Position - m
-        i.Position = UDim2.new(n.X.Scale, n.X.Offset + q.X, n.Y.Scale, n.Y.Offset + q.Y)
-    end
-    (j or i).InputBegan:Connect(function(p)
-        if p.UserInputType == Enum.UserInputType.MouseButton1 then
-            k = true; m = p.Position; n = i.Position
-            p.Changed:Connect(function() if p.UserInputState == Enum.UserInputState.End then k = false end end)
-        end
-    end)
-    i.InputChanged:Connect(function(p) if p.UserInputType == Enum.UserInputType.MouseMovement then l = p end end)
-    b.UserInputService.InputChanged:Connect(function(p) if p == l and k then o(p) end end)
-end
-
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = b.HttpService:GenerateGUID()
+ScreenGui.Name = "RELMZEY_TITAN"
+ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = b.RunService:IsStudio() and player:WaitForChild("PlayerGui") or b.CoreGui
 ScreenGui.Enabled = false
 
 function Library:Init(config)
-    config = config or {KeySystem = false}
-    local function Unlock()
-        if ScreenGui:FindFirstChild("KeyFrame") then ScreenGui.KeyFrame:Destroy() end
+    local KeyGui = Instance.new("ScreenGui", b.CoreGui)
+    KeyGui.Name = "RELMZEY_KEY"
+
+    if isfile and isfile(config.SaveFile) and readfile(config.SaveFile) == config.Key then
+        KeyGui:Destroy()
         ScreenGui.Enabled = true
+        return
     end
-    if not config.KeySystem then Unlock(); return end
-    if isfile and config.SaveFile and isfile(config.SaveFile) then
-        if readfile(config.SaveFile) == config.Key then Unlock(); return end
-    end
-    local KeyFrame = Instance.new("Frame", ScreenGui)
-    KeyFrame.Size = UDim2.new(0, 220, 0, 190); KeyFrame.Position = UDim2.new(0.5, -110, 0.5, -95)
-    KeyFrame.BackgroundColor3 = Color3.fromRGB(12, 20, 30); Drag(KeyFrame)
+
+    local KeyFrame = Instance.new("Frame", KeyGui)
+    KeyFrame.Size = UDim2.new(0, 220, 0, 190)
+    KeyFrame.Position = UDim2.new(0.5, -110, 0.5, -95)
+    KeyFrame.BackgroundColor3 = Color3.fromRGB(12, 20, 30)
+    KeyFrame.Active = true
+    KeyFrame.Draggable = true 
     Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 12)
-    local s = Instance.new("UIStroke", KeyFrame); s.Color = Color3.fromRGB(80, 180, 255)
-    
-    local H = Instance.new("TextLabel", KeyFrame)
-    H.Size = UDim2.new(1, 0, 0, 35); H.BackgroundColor3 = Color3.fromRGB(20, 35, 50); H.Text = "🔑 KEY SYSTEM"
-    H.TextColor3 = Color3.new(1,1,1); H.Font = Enum.Font.GothamBlack; Instance.new("UICorner", H)
+    local stroke = Instance.new("UIStroke", KeyFrame)
+    stroke.Color = Color3.fromRGB(80, 180, 255)
 
-    local I = Instance.new("TextBox", KeyFrame)
-    I.Size = UDim2.new(0, 180, 0, 35); I.Position = UDim2.new(0.5, -90, 0, 50); I.BackgroundColor3 = Color3.fromRGB(25, 40, 55)
-    I.TextColor3 = Color3.new(1,1,1); I.PlaceholderText = "Enter Key..."; I.Font = Enum.Font.GothamBlack; Instance.new("UICorner", I)
+    local KeyHeader = Instance.new("TextLabel", KeyFrame)
+    KeyHeader.Size = UDim2.new(1, 0, 0, 35)
+    KeyHeader.Text = "🔑 KEY SYSTEM"
+    KeyHeader.TextColor3 = Color3.new(1, 1, 1)
+    KeyHeader.Font = Enum.Font.GothamBlack
+    KeyHeader.TextSize = 14
+    KeyHeader.BackgroundColor3 = Color3.fromRGB(20, 35, 50)
+    Instance.new("UICorner", KeyHeader)
 
-    local V = Instance.new("TextButton", KeyFrame)
-    V.Size = UDim2.new(0, 180, 0, 35); V.Position = UDim2.new(0.5, -90, 0, 95); V.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
-    V.Text = "VERIFY"; V.TextColor3 = Color3.new(1,1,1); V.Font = Enum.Font.GothamBlack; Instance.new("UICorner", V)
+    local KeyInput = Instance.new("TextBox", KeyFrame)
+    KeyInput.Size = UDim2.new(0, 180, 0, 35)
+    KeyInput.Position = UDim2.new(0.5, -90, 0, 50)
+    KeyInput.PlaceholderText = "Enter Key..."
+    KeyInput.BackgroundColor3 = Color3.fromRGB(25, 40, 55)
+    KeyInput.TextColor3 = Color3.new(1, 1, 1)
+    KeyInput.Font = Enum.Font.GothamBlack
+    KeyInput.TextSize = 16
+    Instance.new("UICorner", KeyInput)
 
-    local G = Instance.new("TextButton", KeyFrame)
-    G.Size = UDim2.new(0, 180, 0, 35); G.Position = UDim2.new(0.5, -90, 0, 140); G.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
-    G.Text = "GET KEY"; G.TextColor3 = Color3.new(1,1,1); G.Font = Enum.Font.GothamBold; Instance.new("UICorner", G)
+    local VerifyBtn = Instance.new("TextButton", KeyFrame)
+    VerifyBtn.Size = UDim2.new(0, 180, 0, 35)
+    VerifyBtn.Position = UDim2.new(0.5, -90, 0, 95)
+    VerifyBtn.Text = "VERIFY"
+    VerifyBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
+    VerifyBtn.TextColor3 = Color3.new(1, 1, 1)
+    VerifyBtn.Font = Enum.Font.GothamBlack
+    Instance.new("UICorner", VerifyBtn)
 
-    V.MouseButton1Click:Connect(function()
-        if I.Text == config.Key then if writefile then writefile(config.SaveFile, config.Key) end Unlock() else I.Text = ""; I.PlaceholderText = "WRONG" end
+    local GetKeyBtn = Instance.new("TextButton", KeyFrame)
+    GetKeyBtn.Size = UDim2.new(0, 180, 0, 35)
+    GetKeyBtn.Position = UDim2.new(0.5, -90, 0, 140)
+    GetKeyBtn.Text = "GET KEY"
+    GetKeyBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+    GetKeyBtn.TextColor3 = Color3.new(1, 1, 1)
+    GetKeyBtn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", GetKeyBtn)
+
+    VerifyBtn.MouseButton1Click:Connect(function()
+        if KeyInput.Text == config.Key then
+            if writefile then writefile(config.SaveFile, config.Key) end
+            KeyGui:Destroy()
+            ScreenGui.Enabled = true
+        else
+            KeyInput.Text = ""
+            KeyInput.PlaceholderText = "WRONG KEY"
+        end
     end)
-    G.MouseButton1Click:Connect(function() if setclipboard then setclipboard(config.Discord) end end)
+
+    GetKeyBtn.MouseButton1Click:Connect(function()
+        if setclipboard then setclipboard(config.Discord) end
+        GetKeyBtn.Text = "COPIED!"
+        task.wait(1)
+        GetKeyBtn.Text = "GET KEY"
+    end)
 end
 
-function Library:Window(text)
+function Library:Window(titleText)
     Library.windowCount = Library.windowCount + 1
-    local open = true
-    local M = Instance.new("Frame", ScreenGui)
-    M.BackgroundColor3 = Color3.fromRGB(12, 20, 30); M.Size = UDim2.new(0, 220, 0, 300)
-    M.Position = UDim2.new(0, 25 + (230 * (Library.windowCount - 1)), 0, 50); Drag(M)
-    Instance.new("UICorner", M).CornerRadius = UDim.new(0, 12)
-    local s = Instance.new("UIStroke", M); s.Color = Color3.fromRGB(80, 180, 255); s.Thickness = 2
+    local MainFrame = Instance.new("Frame", ScreenGui)
+    MainFrame.Size = UDim2.new(0, 220, 0, 300)
+    MainFrame.Position = UDim2.new(0, 25 + (230 * (Library.windowCount - 1)), 0.5, -150)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(12, 20, 30)
+    MainFrame.Active = true
+    MainFrame.Draggable = true 
+    Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+    local stroke = Instance.new("UIStroke", MainFrame)
+    stroke.Color = Color3.fromRGB(80, 180, 255)
+    stroke.Thickness = 2
 
-    local H = Instance.new("Frame", M); H.Size = UDim2.new(1, 0, 0, 40); H.BackgroundColor3 = Color3.fromRGB(20, 35, 50)
-    Instance.new("UICorner", H).CornerRadius = UDim.new(0, 12)
+    local Header = Instance.new("Frame", MainFrame)
+    Header.Size = UDim2.new(1, 0, 0, 40)
+    Header.BackgroundColor3 = Color3.fromRGB(20, 35, 50)
+    Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 12)
 
-    local T = Instance.new("TextLabel", H); T.Size = UDim2.new(1, -70, 1, 0); T.Position = UDim2.new(0, 12, 0, 0)
-    T.BackgroundTransparency = 1; T.Text = text; T.TextColor3 = Color3.new(1,1,1); T.Font = Enum.Font.GothamBlack; T.TextSize = 15; T.TextXAlignment = 0
+    local Title = Instance.new("TextLabel", Header)
+    Title.Size = UDim2.new(1, -70, 1, 0)
+    Title.Position = UDim2.new(0, 12, 0, 0)
+    Title.Text = titleText
+    Title.TextColor3 = Color3.new(1, 1, 1)
+    Title.Font = Enum.Font.GothamBlack
+    Title.TextSize = 16
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.BackgroundTransparency = 1
 
-    local btn = Instance.new("TextButton", H); btn.Size = UDim2.new(0, 28, 0, 28); btn.Position = UDim2.new(1, -34, 0, 6)
-    btn.Text = "-"; btn.BackgroundColor3 = Color3.fromRGB(60, 80, 110); btn.TextColor3 = Color3.new(1,1,1); btn.Font = 0; Instance.new("UICorner", btn)
+    local MinBtn = Instance.new("TextButton", Header)
+    MinBtn.Size = UDim2.new(0, 28, 0, 28)
+    MinBtn.Position = UDim2.new(1, -34, 0, 6)
+    MinBtn.Text = "-"
+    MinBtn.BackgroundColor3 = Color3.fromRGB(60, 80, 110)
+    MinBtn.TextColor3 = Color3.new(1, 1, 1)
+    MinBtn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 6)
 
-    local B = Instance.new("ScrollingFrame", M); B.Size = UDim2.new(1, 0, 1, -45); B.Position = UDim2.new(0, 0, 0, 45)
-    B.BackgroundTransparency = 1; B.ScrollBarThickness = 0; B.AutomaticCanvasSize = 2
-    local L = Instance.new("UIListLayout", B); L.Padding = UDim.new(0, 8); L.HorizontalAlignment = 1
+    local Body = Instance.new("ScrollingFrame", MainFrame)
+    Body.Size = UDim2.new(1, 0, 1, -45)
+    Body.Position = UDim2.new(0, 0, 0, 45)
+    Body.BackgroundTransparency = 1
+    Body.ScrollBarThickness = 0
+    Body.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
-    btn.MouseButton1Click:Connect(function()
-        open = not open; B.Visible = open; M.Size = open and UDim2.new(0, 220, 0, 300) or UDim2.new(0, 220, 0, 40); btn.Text = open and "-" or "+"
+    local Layout = Instance.new("UIListLayout", Body)
+    Layout.Padding = UDim.new(0, 8)
+    Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+    local minned = false
+    MinBtn.MouseButton1Click:Connect(function()
+        minned = not minned
+        Body.Visible = not minned
+        MainFrame.Size = minned and UDim2.new(0, 220, 0, 40) or UDim2.new(0, 220, 0, 300)
+        MinBtn.Text = minned and "+" or "-"
     end)
 
-    local E = {}
-    function E:Button(n, c)
-        local b = Instance.new("TextButton", B); b.Size = UDim2.new(0, 200, 0, 38); b.BackgroundColor3 = Color3.fromRGB(30, 45, 65)
-        b.Text = n; b.TextColor3 = Color3.new(1,1,1); b.Font = Enum.Font.GothamBlack; b.TextSize = 14; Instance.new("UICorner", b)
-        b.MouseButton1Click:Connect(c)
+    local Actions = {}
+
+    function Actions:Button(text, callback)
+        local btn = Instance.new("TextButton", Body)
+        btn.Size = UDim2.new(0, 200, 0, 38)
+        btn.BackgroundColor3 = Color3.fromRGB(30, 45, 65)
+        btn.Text = text
+        btn.TextColor3 = Color3.new(1, 1, 1)
+        btn.Font = Enum.Font.GothamBlack
+        btn.TextSize = 15
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+        btn.MouseButton1Click:Connect(callback)
     end
 
-    function E:Toggle(n, f, d, c)
-        Library.flags[f] = d; local t = Instance.new("TextButton", B); t.Size = UDim2.new(0, 200, 0, 38)
-        t.BackgroundColor3 = Color3.fromRGB(30, 45, 65); t.Text = "    "..n; t.TextColor3 = Color3.new(1,1,1); t.Font = Enum.Font.GothamBlack
-        t.TextXAlignment = 0; Instance.new("UICorner", t)
-        local s = Instance.new("Frame", t); s.Size = UDim2.new(0, 14, 0, 14); s.Position = UDim2.new(1, -25, 0.5, -7)
-        s.BackgroundColor3 = d and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 60, 60); Instance.new("UICorner", s).CornerRadius = UDim.new(1,0)
-        t.MouseButton1Click:Connect(function()
-            Library.flags[f] = not Library.flags[f]; s.BackgroundColor3 = Library.flags[f] and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 60, 60)
-            c(Library.flags[f])
+    function Actions:Toggle(text, callback)
+        local btn = Instance.new("TextButton", Body)
+        btn.Size = UDim2.new(0, 200, 0, 38)
+        btn.BackgroundColor3 = Color3.fromRGB(30, 45, 65)
+        btn.Text = "    " .. text
+        btn.TextColor3 = Color3.new(1, 1, 1)
+        btn.Font = Enum.Font.GothamBlack
+        btn.TextSize = 15
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+
+        local status = Instance.new("Frame", btn)
+        status.Size = UDim2.new(0, 14, 0, 14)
+        status.Position = UDim2.new(1, -25, 0.5, -7)
+        status.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+        Instance.new("UICorner", status).CornerRadius = UDim.new(1, 0)
+        Instance.new("UIStroke", status).Color = Color3.new(1, 1, 1)
+
+        local enabled = false
+        btn.MouseButton1Click:Connect(function()
+            enabled = not enabled
+            status.BackgroundColor3 = enabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 60, 60)
+            callback(enabled)
         end)
     end
 
-    function E:Slider(n, min, max, d, c)
-        local st = Instance.new("TextLabel", B); st.Size = UDim2.new(0, 200, 0, 20); st.BackgroundTransparency = 1
-        st.Text = n..": "..d; st.TextColor3 = Color3.new(1,1,1); st.Font = Enum.Font.GothamBlack; st.TextSize = 14
-        local bg = Instance.new("Frame", B); bg.Size = UDim2.new(0, 180, 0, 14); bg.BackgroundColor3 = Color3.fromRGB(20, 30, 40)
-        Instance.new("UICorner", bg).CornerRadius = UDim.new(1,0); local fill = Instance.new("Frame", bg)
-        fill.Size = UDim2.new((d-min)/(max-min), 0, 1, 0); fill.BackgroundColor3 = Color3.fromRGB(0, 200, 255); Instance.new("UICorner", fill).CornerRadius = UDim.new(1,0)
-        local function update(input)
-            local x = math.clamp((input.Position.X - bg.AbsolutePosition.X) / bg.AbsoluteSize.X, 0, 1)
-            fill.Size = UDim2.new(x, 0, 1, 0); local val = math.floor(min + (x * (max - min))); st.Text = n..": "..val; c(val)
+    function Actions:Slider(text, min, max, default, callback)
+        local SpeedInfo = Instance.new("TextLabel", Body)
+        SpeedInfo.Size = UDim2.new(0, 200, 0, 20)
+        SpeedInfo.Text = text .. ": " .. default
+        SpeedInfo.TextColor3 = Color3.new(1, 1, 1)
+        SpeedInfo.BackgroundTransparency = 1
+        SpeedInfo.Font = Enum.Font.GothamBlack
+        SpeedInfo.TextSize = 16
+
+        local SliderBg = Instance.new("Frame", Body)
+        SliderBg.Size = UDim2.new(0, 180, 0, 14)
+        SliderBg.BackgroundColor3 = Color3.fromRGB(20, 30, 40)
+        Instance.new("UICorner", SliderBg).CornerRadius = UDim.new(1, 0)
+
+        local SliderFill = Instance.new("Frame", SliderBg)
+        SliderFill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
+        SliderFill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+        Instance.new("UICorner", SliderFill).CornerRadius = UDim.new(1, 0)
+
+        local function Update(input)
+            local x = math.clamp((input.Position.X - SliderBg.AbsolutePosition.X) / SliderBg.AbsoluteSize.X, 0, 1)
+            SliderFill.Size = UDim2.new(x, 0, 1, 0)
+            local val = math.floor(min + (x * (max - min)))
+            SpeedInfo.Text = text .. ": " .. val
+            callback(val)
         end
-        bg.InputBegan:Connect(function(i)
-            if i.UserInputType == Enum.UserInputType.MouseButton1 then
-                local con = b.RunService.RenderStepped:Connect(function() update(b.UserInputService:GetMouseLocation()) end)
-                b.UserInputService.InputEnded:Connect(function(i2) if i2.UserInputType == Enum.UserInputType.MouseButton1 then con:Disconnect() end end)
+
+        SliderBg.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                local con = b.RunService.RenderStepped:Connect(function() Update(b.UserInputService:GetMouseLocation()) end)
+                b.UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then con:Disconnect() end end)
             end
         end)
     end
-    return E
+
+    return Actions
 end
+
 return Library
